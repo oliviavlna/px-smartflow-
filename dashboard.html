@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PX SmartFlow+ | Routing Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .hidden-row { display: none; }
+    .toggle-btn { margin: 10px 0; cursor: pointer; background: #eee; padding: 5px 10px; border: none; }
+    .disabled-button { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+  <div id="header-placeholder"></div>
+
+  <div class="layout">
+    <div id="sidebar"></div>
+
+    <div class="content">
+      <main>
+        <section class="intro-card" style="margin-top: -40px;">
+
+            <h2>Routing Control Panel</h2>
+            <p>Routing Mode: <strong id="routingMode">AI Automatic</strong></p>
+            <button onclick="toggleRoutingMode()" id="toggleBtn">Switch to Manual</button>
+
+            <p>Current Route: <strong id="activeRoute">Jetty 3</strong></p>
+            <p>Pipeline Pressure: <span id="pressure">6.9</span> bar</p>
+            <p>PX Temperature: <span id="temperature">53</span> °C</p>
+            <p>Flowrate: <span id="flowrate">117</span> m³/h</p>
+
+            <div class="routing-buttons" id="manualButtons" style="display: none; gap: 10px; justify-content: center;">
+                <button id="btnJetty3" onclick="switchRoute('Jetty 3')">Override to Jetty 3</button>
+                <button id="btnJetty1" onclick="switchRoute('Jetty 1')">Override to Jetty 1</button>
+            </div>
+        </section>
+
+
+        <section>
+          <h2>Routing History</h2>
+          <table style="width:100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Active Jetty</th>
+                <th>Pressure (bar)</th>
+                <th>Temperature (°C)</th>
+                <th>Flowrate (m³/h)</th>
+                <th>Valve Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+          <button class="toggle-btn" onclick="toggleHistory()">Show/Hide Full History</button>
+        </section>
+
+        <section>
+          <h2>Forecasting & Scheduling</h2>
+
+         
+          <p><strong>Jetty Congestion Prediction:</strong> Jetty 3 is expected to be overloaded between July 29–31.</p>
+          <ul>
+            <li>Jetty 3: <span style="color:red">⚠️ Potential Congestion</span></li>
+            <li>Jetty 1: <span style="color:green">✔ Safe</span></li>
+          </ul>
+          <p><strong>Current Forecast Status:</strong> <span id="currentForecastStatus">Loading...</span></p>
+          <p><strong>Recommendation:</strong> <span id="recommendationStatus">-</span></p>
+        </section>
+
+        <section>
+          <canvas id="forecastChart" class="forecast-chart"></canvas>
+
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      loadComponent("header", "components/header.html");
+      loadComponent("sidebar", "components/sidebar.html");
+
+      const savedMode = localStorage.getItem("routingMode") || "AI Automatic";
+      document.getElementById("routingMode").textContent = savedMode;
+      document.getElementById("toggleBtn").textContent = savedMode === "Manual" ? "Switch to AI" : "Switch to Manual";
+      document.getElementById("manualButtons").style.display = savedMode === "Manual" ? "flex" : "none";
+
+      const savedRoute = localStorage.getItem("currentRoute") || "Jetty 3";
+      document.getElementById("activeRoute").textContent = savedRoute;
+
+      updateForecastStatus();
+      renderHistory();
+      updatePipelineData();
+      updateOverrideButtons();
+      setInterval(updatePipelineData, 4000);
+    });
+
+    function loadComponent(id, filepath) {
+      fetch(filepath)
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById(id).innerHTML = html;
+        });
+    }
+
+    function toggleRoutingMode() {
+      const modeDisplay = document.getElementById("routingMode");
+      const toggleBtn = document.getElementById("toggleBtn");
+      const manualButtons = document.getElementById("manualButtons");
+
+      const isAuto = modeDisplay.textContent === "AI Automatic";
+      modeDisplay.textContent = isAuto ? "Manual" : "AI Automatic";
+      toggleBtn.textContent = isAuto ? "Switch to AI" : "Switch to Manual";
+      manualButtons.style.display = isAuto ? "flex" : "none";
+      localStorage.setItem("routingMode", modeDisplay.textContent);
+    }
+
+    function switchRoute(targetJetty) {
+      document.getElementById('activeRoute').textContent = targetJetty;
+      localStorage.setItem("currentRoute", targetJetty);
+
+      const now = new Date().toLocaleString();
+      const pressure = document.getElementById("pressure").textContent;
+      const temp = document.getElementById("temperature").textContent;
+      const flow = document.getElementById("flowrate").textContent;
+
+      const log = { time: now, jetty: targetJetty, pressure, temperature: temp, flowrate: flow, valve: "Opened to " + targetJetty };
+      let history = JSON.parse(localStorage.getItem("routingHistory") || "[]");
+      history.unshift(log);
+      localStorage.setItem("routingHistory", JSON.stringify(history));
+      renderHistory();
+      updateForecastStatus();
+      updateOverrideButtons();
+    }
+
+    function updateOverrideButtons() {
+      const current = localStorage.getItem("currentRoute") || "Jetty 3";
+      const btn3 = document.getElementById("btnJetty3");
+      const btn1 = document.getElementById("btnJetty1");
+
+      if (btn3 && btn1) {
+        if (current === "Jetty 3") {
+          btn3.disabled = true;
+          btn3.classList.add("disabled-button");
+          btn1.disabled = false;
+          btn1.classList.remove("disabled-button");
+        } else {
+          btn1.disabled = true;
+          btn1.classList.add("disabled-button");
+          btn3.disabled = false;
+          btn3.classList.remove("disabled-button");
+        }
+      }
+    }
+
+    function renderHistory() {
+      const table = document.getElementById("historyTable");
+      table.innerHTML = "";
+      const data = JSON.parse(localStorage.getItem("routingHistory") || "[]");
+      data.forEach((log, i) => {
+        const row = document.createElement("tr");
+        row.className = i >= 5 ? "hidden-row" : "";
+        row.innerHTML = `
+          <td>${log.time}</td>
+          <td>${log.jetty}</td>
+          <td>${log.pressure}</td>
+          <td>${log.temperature}</td>
+          <td>${log.flowrate}</td>
+          <td>${log.valve}</td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function toggleHistory() {
+      const rows = document.querySelectorAll(".hidden-row");
+      rows.forEach(row => {
+        row.style.display = row.style.display === "table-row" ? "none" : "table-row";
+      });
+    }
+
+    function updateForecastStatus() {
+      const current = localStorage.getItem("currentRoute") || "Jetty 3";
+      document.getElementById("currentForecastStatus").innerText = current;
+      const statusText = current === "Jetty 1"
+        ? "Jetty 1 is already active"
+        : "Jetty 3 is active. Consider rerouting to Jetty 1 by H-3";
+      document.getElementById("recommendationStatus").innerText = statusText;
+    }
+
+    function updatePipelineData() {
+      document.getElementById("pressure").textContent = (6.5 + Math.random()).toFixed(1);
+      document.getElementById("temperature").textContent = (50 + Math.random() * 5).toFixed(0);
+      document.getElementById("flowrate").textContent = (100 + Math.random() * 30).toFixed(0);
+    }
+
+    new Chart(document.getElementById('forecastChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: [
+      'Jan W1', 'Jan W2', 'Jan W3', 'Jan W4',
+      'Feb W1', 'Feb W2', 'Feb W3', 'Feb W4',
+      'Mar W1', 'Mar W2', 'Mar W3', 'Mar W4'
+    ],
+    datasets: [
+      {
+        label: 'Realized Demand',
+        data: [980, 1050, 1100, 1200, 1250, 1320, 1400, 1500, null, null, null, null],
+        borderColor: '#3182ce',
+        backgroundColor: 'rgba(49, 130, 206, 0.1)',
+        borderWidth: 2,
+        tension: 0.3,
+        spanGaps: true,
+        fill: false
+      },
+      {
+        label: 'Forecast Demand',
+        data: [null, null, null, null, null, null, null, null, 1550, 1620, 1700, 1850],
+        borderColor: '#68d391',
+        borderDash: [5, 5],
+        borderWidth: 2,
+        tension: 0.3,
+        spanGaps: true,
+        fill: false
+      },
+      {
+        label: 'Safe Capacity Threshold',
+        data: Array(12).fill(1800),
+        borderColor: 'red',
+        borderDash: [4, 4],
+        borderWidth: 1,
+        pointRadius: 0,
+        fill: false
+      },
+      {
+        label: 'Above Threshold',
+        data: [null, null, null, null, null, null, null, null, null, null, null, 1850],
+        backgroundColor: 'rgba(255, 0, 0, 0.08)',
+        fill: 'origin',
+        borderWidth: 0,
+        pointRadius: 0,
+        showLine: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          boxWidth: 10
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function (ctx) {
+            const label = ctx.dataset.label || '';
+            const val = ctx.formattedValue;
+            if (label === 'Forecast Demand') {
+              return `Forecast: ${val} ton`;
+            } else if (label === 'Realized Demand') {
+              return `Actual: ${val} ton`;
+            } else if (label === 'Safe Capacity Threshold') {
+              return `Threshold: ${val} ton`;
+            } else {
+              return '';
+            }
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Volume (Ton)'
+        },
+        beginAtZero: true,
+        grid: {
+          color: '#edf2f7'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Week'
+        },
+        grid: {
+          color: '#f0f0f0'
+        }
+      }
+    }
+  }
+});
+
+  </script>
+</body>
+</html>

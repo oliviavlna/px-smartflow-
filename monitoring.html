@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring | PX SmartFlow+</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function randomValue(min, max) {
+      return (Math.random() * (max - min) + min).toFixed(1);
+    }
+
+    function updateSensorData() {
+      document.getElementById("pressure").innerText = randomValue(5.8, 7.5);
+      document.getElementById("temperature").innerText = randomValue(50, 65);
+      document.getElementById("flowrate").innerText = randomValue(100, 130);
+    }
+
+    function updatePumpStatus() {
+      const booster = document.getElementById("boosterStatus");
+      const temp = parseFloat(document.getElementById("temperature").innerText);
+      if (temp > 60) {
+        booster.innerText = "Booster ON - Cooling Mode";
+        booster.style.color = "#2a8";
+      } else if (temp < 52) {
+        booster.innerText = "Booster ON - Heating Mode";
+        booster.style.color = "#e67e22";
+      } else {
+        booster.innerText = "Booster ON - Stable";
+        booster.style.color = "#27ae60";
+      }
+    }
+
+    function updateSmartValve() {
+      const pressure = parseFloat(document.getElementById("pressure").innerText);
+      const valve = document.getElementById("valveStatus");
+      if (pressure > 7.2) {
+        valve.innerText = "Katup Aktif - Overpressure Relief";
+        valve.style.color = "#c0392b";
+      } else {
+        valve.innerText = "Katup Siaga - Normal";
+        valve.style.color = "#2980b9";
+      }
+    }
+
+    function refreshMonitoring() {
+      updateSensorData();
+      updatePumpStatus();
+      updateSmartValve();
+    }
+
+    function updateCurrentRouteStatus() {
+      const route = localStorage.getItem("currentRoute") || "Jetty 3";
+      document.getElementById("currentJetty").innerText = route;
+    }
+
+    setInterval(refreshMonitoring, 3000);
+    window.onload = updateCurrentRouteStatus;
+  </script>
+</head>
+<body>
+  <div id="header"></div>
+  <div class="layout">
+    <div id="sidebar"></div>
+    <div class="content">
+      <main>
+        <section class="intro-card">
+  <h2>Monitoring Sistem PX SmartFlow+</h2>
+  <p>
+    Halaman ini menampilkan data real-time dari sistem pipa transfer Paraxylene, termasuk pembacaan sensor IoT (tekanan, suhu, dan flowrate), serta status komponen utama seperti Smart Valve dan Pompa Booster Thermo-Control.
+  </p>
+</section>
+
+<section class="monitoring-grid">
+  <div class="monitoring-card">
+    <h3>Status Rute Saat Ini</h3>
+    <p>Sedang dialirkan ke: <strong id="currentJetty">Memuat...</strong></p>
+  </div>
+
+  <div class="monitoring-card">
+    <h3>Sensor IoT (Pipeline)</h3>
+    <p>Tekanan: <strong><span id="pressure">6.9</span> bar</strong></p>
+    <p>Suhu: <strong><span id="temperature">53</span> °C</strong></p>
+    <p>Flowrate: <strong><span id="flowrate">117</span> m<sup>3</sup>/h</strong></p>
+  </div>
+
+  <div class="monitoring-card">
+    <h3>Unit Smart Booster & Valve</h3>
+    <p>Status Pompa Booster: <strong id="boosterStatus">Memuat...</strong></p>
+    <p>Status Smart Valve: <strong id="valveStatus">Memuat...</strong></p>
+  </div>
+</section>
+
+      </main>
+      
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>

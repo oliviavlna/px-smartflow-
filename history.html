@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Routing History | PX SmartFlow+</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="header"></div>
+  <div class="layout">
+    <div id="sidebar"></div>
+
+    <div class="content">
+      <main>
+        <section class="dashboard">
+          <h2>Riwayat Routing & Aktivitas Sistem</h2>
+          <p>Halaman ini menampilkan log historis perubahan rute, status katup, suhu, tekanan, serta waktu pemuatan.</p>
+
+          <div class="card">
+            <table style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background-color: #f5f5f5;">
+                  <th style="padding: 10px; border: 1px solid #ccc;">Waktu</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Jetty Aktif</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Tekanan (bar)</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Suhu (°C)</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Flowrate (m³/h)</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Status Valve</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable">
+                <!-- Log akan dimasukkan oleh JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+      <div id="footer"></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+  <script>
+    const tableBody = document.getElementById("historyTable");
+    const routingLog = JSON.parse(localStorage.getItem("routingHistory")) || [];
+
+    const newJetty = localStorage.getItem("currentRoute");
+    const lastLog = routingLog[routingLog.length - 1];
+
+    if (!lastLog || lastLog.jetty !== newJetty) {
+      const newLog = {
+        time: new Date().toLocaleString(),
+        jetty: newJetty || "Jetty 3",
+        pressure: localStorage.getItem("pressure") || "6.9",
+        temperature: localStorage.getItem("temperature") || "53",
+        flowrate: localStorage.getItem("flowrate") || "117",
+        valve: newJetty === "Jetty 1" ? "Buka ke Jetty 1" : "Buka ke Jetty 3"
+      };
+      routingLog.push(newLog);
+      localStorage.setItem("routingHistory", JSON.stringify(routingLog));
+    }
+
+    routingLog.forEach(log => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td style="padding: 8px; border: 1px solid #ccc;">${log.time}</td>
+        <td style="padding: 8px; border: 1px solid #ccc;">${log.jetty}</td>
+        <td style="padding: 8px; border: 1px solid #ccc;">${log.pressure}</td>
+        <td style="padding: 8px; border: 1px solid #ccc;">${log.temperature}</td>
+        <td style="padding: 8px; border: 1px solid #ccc;">${log.flowrate}</td>
+        <td style="padding: 8px; border: 1px solid #ccc;">${log.valve}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  </script>
+</body>
+</html>
