@@ -4,55 +4,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PX SmartFlow+ | Beranda</title>
+  <title>PX SmartFlow+ | Home</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .info-notification {
+      background-color: #eaf4fc;
+      color: #0c5460;
+      border: 1px solid #b8daff;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
 <body>
   <div id="header"></div>
 
   <div class="layout">
     <div id="sidebar"></div>
+
     <div class="content">
+      <!-- In-page Notification -->
+      <div class="info-notification">
+        ⚠️ This website is a dummy prototype developed solely for the ISEEC Mini Case Competition 2025.
+      </div>
+
       <div class="intro-card">
-  <h1>PX SmartFlow+</h1>
-  <p>
-  PX SmartFlow+ adalah inovasi sistem distribusi Paraxylene (PX) berbasis teknologi cerdas yang mengintegrasikan IoT sensor, AI-powered routing, dan fitur override manual. Sistem ini memungkinkan pemilihan jalur optimal menuju Jetty 1 atau Jetty 3 secara adaptif, berdasarkan tekanan, suhu, dan flowrate aktual. Dengan fleksibilitas ini, sistem mampu mengurangi antrean kapal, menekan risiko demurrage, dan menjaga kontinuitas suplai untuk downstream seperti PTA.
-</p>
+        <h1>PX SmartFlow+</h1>
+        <p>
+          PX SmartFlow+ is an intelligent technology-based Paraxylene (PX) distribution system innovation that integrates IoT sensors, AI-powered routing, and manual override features. This system enables adaptive optimal path selection to Jetty 1 or Jetty 3, based on actual pressure, temperature, and flowrate. With this flexibility, the system can reduce vessel queues, minimize demurrage risk, and maintain supply continuity for downstream processes like PTA.
+        </p>
+      </div>
 
-</div>
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>AI-Powered Routing System</h3>
+          <p>Automatic jetty route selection based on pressure, temperature, and demand.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Forecasting Module</h3>
+          <p>Jetty load & shipping needs prediction based on end-of-month demand trends.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Smart Valve (C²SP)</h3>
+          <p>Flexible & real-time PX diversion to Jetty 1 or Jetty 3.</p>
+        </div>
+        <div class="feature-card">
+          <h3>PX Booster & Thermo-Control</h3>
+          <p>Smart pumps maintain PX viscosity during transfer.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Predictive Safety System</h3>
+          <p>AI alarms for high pressure, temperature anomalies, or overloading.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Blockchain Log</h3>
+          <p>Immutable records for audit, transparency, and accountability.</p>
+        </div>
+      </div>
 
-<div class="card-grid">
-  <div class="feature-card">
-    <h3>AI-Powered Routing System</h3>
-    <p>Penentuan rute Jetty otomatis berdasarkan tekanan, suhu, dan permintaan.</p>
-  </div>
-  <div class="feature-card">
-    <h3>Forecasting Module</h3>
-    <p>Prediksi beban Jetty & kebutuhan pengiriman berdasarkan tren permintaan akhir bulan.</p>
-  </div>
-  <div class="feature-card">
-    <h3>Smart Valve (C²SP)</h3>
-    <p>Pengalihan PX fleksibel & real-time ke Jetty 1 atau Jetty 3.</p>
-  </div>
-  <div class="feature-card">
-    <h3>PX Booster & Thermo-Control</h3>
-    <p>Pompa pintar menjaga viskositas PX saat perpindahan.</p>
-  </div>
-  <div class="feature-card">
-    <h3>Predictive Safety System</h3>
-    <p>AI alarm untuk tekanan tinggi, suhu anomali, atau overloading.</p>
-  </div>
-  <div class="feature-card">
-    <h3>Blockchain Log</h3>
-    <p>Catatan immutable untuk audit, transparansi, dan akuntabilitas.</p>
-  </div>
-</div>
-
-<div class="action-buttons">
-  <a href="dashboard.html" class="btn-primary">Buka Dashboard</a>
-  <a href="monitoring.html" class="btn-primary">Sensor Valve & PBT</a>
-</div>
-
+      <div class="action-buttons">
+        <a href="dashboard.html" class="btn-primary">Open Dashboard</a>
+        <a href="monitoring.html" class="btn-primary">Valve & PBT Sensors</a>
+      </div>
+    </div>
   </div>
 
   <script src="main.js"></script>

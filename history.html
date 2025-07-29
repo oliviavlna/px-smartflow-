@@ -14,30 +14,29 @@
     <div class="content">
       <main>
         <section class="dashboard">
-          <h2>Riwayat Routing & Aktivitas Sistem</h2>
-          <p>Halaman ini menampilkan log historis perubahan rute, status katup, suhu, tekanan, serta waktu pemuatan.</p>
+          <h2>Routing History & System Activity</h2>
+          <p>This page displays the historical log of route changes, valve status, temperature, pressure, and loading time.</p>
 
           <div class="card">
             <table style="width:100%; border-collapse: collapse;">
               <thead>
                 <tr style="background-color: #f5f5f5;">
-                  <th style="padding: 10px; border: 1px solid #ccc;">Waktu</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Jetty Aktif</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Tekanan (bar)</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Suhu (°C)</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Timestamp</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Active Jetty</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Pressure (bar)</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Temperature (°C)</th>
                   <th style="padding: 10px; border: 1px solid #ccc;">Flowrate (m³/h)</th>
-                  <th style="padding: 10px; border: 1px solid #ccc;">Status Valve</th>
+                  <th style="padding: 10px; border: 1px solid #ccc;">Valve Status</th>
                 </tr>
               </thead>
               <tbody id="historyTable">
-                <!-- Log akan dimasukkan oleh JavaScript -->
+                <!-- Logs will be inserted by JavaScript -->
               </tbody>
             </table>
           </div>
         </section>
       </main>
-      <div id="footer"></div>
-    </div>
+      
   </div>
   <script src="main.js"></script>
   <script>
@@ -54,7 +53,7 @@
         pressure: localStorage.getItem("pressure") || "6.9",
         temperature: localStorage.getItem("temperature") || "53",
         flowrate: localStorage.getItem("flowrate") || "117",
-        valve: newJetty === "Jetty 1" ? "Buka ke Jetty 1" : "Buka ke Jetty 3"
+        valve: newJetty === "Jetty 1" ? "Open to Jetty 1" : "Open to Jetty 3"
       };
       routingLog.push(newLog);
       localStorage.setItem("routingHistory", JSON.stringify(routingLog));
